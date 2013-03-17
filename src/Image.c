@@ -36,6 +36,39 @@ tPixel ** rotateBmp(tPixel** bmpToRot, int n) {
 	
 }
 
+tPixel** flipBmpHoriz(tPixel **bmpToHorFlip){
+	int rows  = bmpInfoHeader.height;
+	int cols = bmpInfoHeader.width;
+	tPixel temp;
+	
+	for (int i = 0; i < rows; i++) {
+		for(int j = 0; j< cols/2; j++) {
+			temp = bmpToHorFlip[i][j];
+			bmpToHorFlip[i][j] = bmpToHorFlip[i][cols-(j+1)];
+			bmpToHorFlip[i][cols-(j+1)] = temp;
+		}
+	}
+
+	return bmpToHorFlip;
+}
+
+tPixel ** flipBmpVer(tPixel **bmpToFlipVer){
+	int rows  = bmpInfoHeader.height;
+	int cols = bmpInfoHeader.width;
+	tPixel temp;
+	
+	for (int i = 0; i < rows/2; i++) {
+		for(int j = 0; j< cols; j++) {
+			temp = bmpToFlipVer[i][j];
+			bmpToFlipVer[i][j] = bmpToFlipVer[rows-(i+1)][j];
+			bmpToFlipVer[rows-(i+1)][j] = temp;
+		}
+	}
+
+	return bmpToFlipVer;
+}
+
+
 /* updates the bmpInfoHeader with new information
  * Params: newWidth - the new width of the bmp
  * 		   newHeight - the new height of the bmp

@@ -143,7 +143,7 @@ void writeBmp(char *fileName, tPixel **pixelsToWrite) {
 	int height = bmpInfoHeader.height;
 	int width = bmpInfoHeader.width;
 
-	bmpFileOut = fopen("image.bmp", "wb");
+	bmpFileOut = fopen("../image.bmp", "wb");
 	if(bmpFileOut == NULL) {
 		ErrorExit(EXIT_FAILURE, "The file could not be opened.");
 	}
