@@ -7,35 +7,42 @@
  */
 
 tPixel ** rotateBmp(tPixel** bmpToRot, int n) {
-	const int M = bmpInfoHeader.height;
-	const int N = bmpInfoHeader.width;
+	int M = bmpInfoHeader.height;
+	int N = bmpInfoHeader.width;
+	int timesToRot;
 
-	if (n % 4 == 0) {
+	printf("%d\n", n);
+
+	if ((timesToRot = n % 4) == 0) {
 		return bmpToRot;	
 	}
+	else {
+		tPixel **newBmp = (tPixel**)malloc(N * sizeof(tPixel*));
+		for (int i = 0; i < N; i++) {
+			newBmp[i] = (tPixel*)malloc(M * sizeof(tPixel));
+		}		
+		
+		printf("hit\n");
 
-	tPixel **newBmp = (tPixel**)malloc(N * sizeof(tPixel*));
-	for (int i = 0; i < N; i++) {
-		newBmp[i] = (tPixel*)malloc(M * sizeof(tPixel));
-	}
-
-	for(int r = 0; r < M; r++) {
-		for (int c = 0; c < N; c++) {
-			newBmp[c][M-1-r] = bmpToRot[r][c];
+		for(int r = 0; r < M; r++) {
+			for (int c = 0; c < N; c++) {				
+				newBmp[c][r] = bmpToRot[r][N-1-c];
+			}
 		}
+
+		updateBmpInfo(M, N);
+		return rotateBmp(newBmp, n-1);				
 	}
-
-	updateBmpInfo(M, N);
-
-	return newBmp;
+	
 }
 
 /* updates the bmpInfoHeader with new information
  * Params: newWidth - the new width of the bmp
- * 		   new Height - the new height of the bmp
+ * 		   newHeight - the new height of the bmp
  */
 
 void updateBmpInfo(int newWidth, int newHeight) {
 	bmpInfoHeader.width = newWidth;
 	bmpInfoHeader.height = newHeight;
 }
+

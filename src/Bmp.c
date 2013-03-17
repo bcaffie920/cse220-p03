@@ -164,8 +164,8 @@ void writeBmp(char *fileName, tPixel **pixelsToWrite) {
 		ErrorExit(EXIT_FAILURE, "Error writing file 2");
 	}
 
-	for (int row = height -1; row >= 0; row--) {
-		for (int col = width -1; col >=0; col--) {
+	for (int row = 0; row < height; row++) {
+		for (int col = 0; col < width; col++) {
 			if(fwrite(&pixelsToWrite[row][col], 3, 1, bmpFileOut) != 1) {
 				ErrorExit(EXIT_FAILURE, "Error writing file 3");
 			}	
