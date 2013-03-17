@@ -16,7 +16,24 @@
 #include "Error.h"
 #include "String.h"
 #include "Bmp.h"
+#include "Image.h"
 
+//==============================================================================================================
+// TYPEDEFS 
+//==============================================================================================================
+ typedef struct {
+	int		argc;			// argc from main()
+	char  **argv;			// argv from main()
+	bool	fliph;			// --fliph was specified
+	bool	flipv;			// --flipv
+	bool	h;				// -h, --help
+	char   *inFile;			// The file name of the input BMP image
+	bool	o;				// -o file, --output file
+	char   *outFile;		// The output file name following -o or --output
+	int		rotArg;			// The argument n following --rotr
+	bool	rotr;			// --rotr n
+	bool	v;				// -v, --version
+} tCmdLine;
 //==============================================================================================================
 // CONSTANT DEFINITIONS
 //==============================================================================================================
@@ -100,11 +117,16 @@ int main(int pArgc, char *pArgv[])
  * DESCRIPTION
  *------------------------------------------------------------------------------------------------------------*/
 static void Run(tCmdLine *pCmdLine)
-{
-	tPixel **tmp;
-	readBmpHeaders(pCmdLine);
-	tmp = readBmpPixels(pCmdLine);
-	testWrite(pCmdLine);
+{	
+	tPixel **processedBmp;
+
+	readBmpHeaders(pCmdLine->inFile);
+	processedBmp = readBmpPixels(pCmdLine);
+	if (pCmdLine->rotr) {
+		processedBmp = rotateBmp(processedBmp, pCmdLine->rotArg);	
+	}
+	
+	writeBmp(pCmdLine->outFile, processedBmp);
 }
 
 /*--------------------------------------------------------------------------------------------------------------

@@ -20,20 +20,6 @@
 #define MAIN_H
 #include <stdbool.h>
 
- typedef struct {
-	int		argc;			// argc from main()
-	char  **argv;			// argv from main()
-	bool	fliph;			// --fliph was specified
-	bool	flipv;			// --flipv
-	bool	h;				// -h, --help
-	char   *inFile;			// The file name of the input BMP image
-	bool	o;				// -o file, --output file
-	char   *outFile;		// The output file name following -o or --output
-	int		rotArg;			// The argument n following --rotr
-	bool	rotr;			// --rotr n
-	bool	v;				// -v, --version
-} tCmdLine;
-
 //==============================================================================================================
 // CONSTANT DECLARATIONS
 //==============================================================================================================

@@ -45,14 +45,10 @@ tBmpHeader bmpHeader;
 tBmpInfoHeader bmpInfoHeader;
 tPixel **pixels;
 
-int paddingBytes;
-FILE *bmpFileIn;
-FILE *bmpFileOut;
-
 /***********************
 * Function Declerations
 ***********************/
-void readBmpHeaders(tCmdLine *cmdArgs);
-tPixel **readBmpPixels(tCmdLine *cmdArgs);
-void testWrite(tCmdLine *cmdArgs);
+void readBmpHeaders(char *fileName);
+tPixel **readBmpPixels();
+void writeBmp(char *fileName, tPixel **);
 #endif
