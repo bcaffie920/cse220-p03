@@ -1,8 +1,9 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 #include "Bmp.h"
-//function declarations
-tPixel **rotateBmp(tPixel**, int);
-void updateBmpInfo(int, int);
+
+tPixel** rotateBmp(tPixel **);
+tPixel** flipBmpHoriz(tPixel **);
+tPixel ** flipBmpVer(tPixel **);
 
 #endif
