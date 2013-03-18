@@ -42,9 +42,14 @@ const char *cBinary  = "bimpie";
 const char *cVersion = "1.0 (2013.3.11)";
 
 //==============================================================================================================
+// VARIABLE DECLARATIONS
+//==============================================================================================================
+char *cmdOrder[3];
+int cmdOrderCount = 0;
+//==============================================================================================================
 // FUNCTION DECLARATIONS
 //==============================================================================================================
-
+static tPixel** callFuncInOrder(tCmdLine*, tPixel**);
 static bool CheckDupOpt(bool pOptFlag, char *pOptStr);
 static void Help();
 static void Run(tCmdLine *);
@@ -55,7 +60,21 @@ static void Version();
 //==============================================================================================================
 // FUNCTION DEFINITIONS
 //==============================================================================================================
+static tPixel** callFuncInOrder(tCmdLine *pCmdLine, tPixel **pixelsToProcess) {
+	for (int i = 0; i < cmdOrderCount; i++) {
+		if(strcmp(cmdOrder[i], "fliph") == 0) {
+			pixelsToProcess = flipBmpHoriz(pixelsToProcess);
+		}
+		else if (strcmp(cmdOrder[i], "flipv") == 0) {
+			pixelsToProcess = flipBmpVer(pixelsToProcess);
+		}
+		else if (strcmp(cmdOrder[i], "rotr") == 0) {
+			pixelsToProcess = rotateBmp(pixelsToProcess, pCmdLine->rotArg);
+		}
+	}
 
+	return pixelsToProcess;
+}
 /*--------------------------------------------------------------------------------------------------------------
  * FUNCTION: CheckDupOpt()
  *
@@ -101,7 +120,7 @@ static void Help()
  *------------------------------------------------------------------------------------------------------------*/
 int main(int pArgc, char *pArgv[])
 {
-	tCmdLine cmdLine;
+	tCmdLine cmdLine;	 
 	memset(&cmdLine, 0, sizeof(tCmdLine));
 	cmdLine.argc = pArgc;
 	cmdLine.argv = pArgv;
@@ -118,13 +137,12 @@ int main(int pArgc, char *pArgv[])
 static void Run(tCmdLine *pCmdLine)
 {	
 	tPixel **processedBmp;
-
 	readBmpHeaders(pCmdLine->inFile);
 	processedBmp = readBmpPixels(pCmdLine);
-	// processedBmp = flipBmpHoriz(processedBmp);
-	// processedBmp = flipBmpHoriz(processedBmp);
-	if (pCmdLine->rotr) {
-		processedBmp = rotateBmp(processedBmp, pCmdLine->rotArg);	
+	// processedBmp = rotateBmp(processedBmp, pCmdLine->rotArg);
+	processedBmp = callFuncInOrder(pCmdLine, processedBmp);
+	if (!pCmdLine->outFile) {
+		pCmdLine->outFile = pCmdLine->inFile;
 	}
 	writeBmp(pCmdLine->outFile, processedBmp);
 }
@@ -174,9 +192,17 @@ static void ScanCmdLine(tCmdLine *pCmdLine)
 		} else if (streq(argScan.opt, "--fliph")) {
 			pCmdLine->fliph = CheckDupOpt(pCmdLine->fliph, argScan.opt);
 
+			if (pCmdLine->fliph) {
+				cmdOrder[cmdOrderCount++] = "fliph";				
+			}
+
 		// Was it --flipv?
 		} else if (streq(argScan.opt, "--flipv")) {
 			pCmdLine->flipv = CheckDupOpt(pCmdLine->flipv, argScan.opt);
+
+			if (pCmdLine->flipv) {
+				cmdOrder[cmdOrderCount++] = "flipv";				
+			}
 
 		// Was it -h or --help?
 		} else if (streq(argScan.opt, "-h") || streq(argScan.opt, "--help")) {
@@ -187,11 +213,17 @@ static void ScanCmdLine(tCmdLine *pCmdLine)
 			pCmdLine->o = CheckDupOpt(pCmdLine->o, argScan.opt);
 			pCmdLine->outFile = argScan.arg;
 
+			
 		// Was it --rotr? If so, attempt to convert the argument following --rotr to an integer. ScanRotArg()
 		// does not return if the conversion fails.
 		} else if (streq(argScan.opt, "--rotr")) {
 			pCmdLine->rotr = CheckDupOpt(pCmdLine->rotr, argScan.opt);
 			pCmdLine->rotArg = ScanRotArg(argScan.opt, argScan.arg);
+
+			if (pCmdLine->rotr) {
+				cmdOrder[cmdOrderCount++] = "rotr";
+			}
+
 
 		// Was it -v or --version?
 		} else if (streq(argScan.opt, "-v") || streq(argScan.opt, "--version")) {

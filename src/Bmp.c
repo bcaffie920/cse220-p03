@@ -170,13 +170,15 @@ void writeBmp(char *fileName, tPixel **pixelsToWrite) {
 	int height = bmpInfoHeader.height;
 	int width = bmpInfoHeader.width;
 
+	printf("outfile name: %s\n", fileName);
+
 	char *padding = "\0\0\0\0";
 
 	paddingBytes = calculatePaddingBytes(width);
 
 	printf("Updated paddingBytes: %d\n", paddingBytes);
 
-	bmpFileOut = fopen("../image.bmp", "wb");
+	bmpFileOut = fopen(fileName, "wb");
 	if(bmpFileOut == NULL) {
 		ErrorExit(EXIT_FAILURE, "The file could not be opened.");
 	}
