@@ -9,12 +9,20 @@
  *
  **************************************************************************************************************/
 #include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "String.h"
+#include "Error.h"
 #include "Bmp.h"
 
 FILE *bmpFileIn;
 FILE *bmpFileOut;
 
 int paddingBytes;
+
+const size_t cBmpHeaderSize = 14;
+const size_t cBmpInfoHeaderSize = 40;
+const size_t cSizeOfPixel = 3;
 
 
 /* Calculates the padding bytes for the read bmp
@@ -48,6 +56,14 @@ static long calculateBmpFileSize() {
 	return bmpFileSize;
 }
 
+static void freePixels(tPixel** pixelsToFree) {
+	int height = bmpInfoHeader.height;
+	for (int i = 0; i < height; i++) {
+		free(pixelsToFree[i]);
+	}
+	free(pixelsToFree);
+}
+
 void readBmpHeaders(char * fileName) {	
 	byte bufferHeader[sizeof(tBmpHeader)];	
 	bmpFileIn = fopen(fileName, "rb");
@@ -59,11 +75,11 @@ void readBmpHeaders(char * fileName) {
 		ErrorExit(EXIT_FAILURE, "The file could not be opened");
 	}
 
-	if (fread(bufferHeader, 14, 1, bmpFileIn) != 1) {
+	if (fread(bufferHeader, cBmpHeaderSize, 1, bmpFileIn) != 1) {
 		ErrorExit(EXIT_FAILURE, "Error reading File");
 	}
 
-	if(bufferHeader[0] != 'B' || bufferHeader[1] != 'M') {
+	if (bufferHeader[0] != 'B' || bufferHeader[1] != 'M') {
 		ErrorExit(EXIT_FAILURE, "Not a BMP File");
 	}
 
@@ -78,7 +94,7 @@ void readBmpHeaders(char * fileName) {
 
 	printf("Size of tBmpInfoHeader: %ld\n", sizeof(tBmpInfoHeader));
 
-	if(fread(&bmpInfoHeader, sizeof(tBmpInfoHeader), 1, bmpFileIn) != 1) {
+	if (fread(&bmpInfoHeader, cBmpInfoHeaderSize, 1, bmpFileIn) != 1) {
 		ErrorExit(EXIT_FAILURE, "Error reading File");
 	}	
 
@@ -114,7 +130,9 @@ tPixel **readBmpPixels() {
 	int height = bmpInfoHeader.height;
 	int width = bmpInfoHeader.width;
 
-	pixels = (tPixel **) malloc(height * sizeof(tPixel *));
+	byte *bmpPaddingBytes = (byte*) malloc(height * sizeof(byte));
+
+	tPixel **pixels = (tPixel **) malloc(height * sizeof(tPixel *));
 	for (int row = 0; row < height; row++) {
 		pixels[row] = (tPixel *) malloc(width * sizeof(tPixel));
 		
@@ -125,13 +143,21 @@ tPixel **readBmpPixels() {
 
 	for (int row = 0; row < height; row++) {
 		for (int col = 0; col < width; col++) {
-			if(fread(&pixels[row][col], 3, 1, bmpFileIn) != 1) {
+			if(fread(&pixels[row][col], cSizeOfPixel, 1, bmpFileIn) != 1) {
 				ErrorExit(EXIT_FAILURE, "Pixel Error.");
 			}					
 		}
-		fseek(bmpFileIn, (long)paddingBytes, SEEK_CUR);
+		fread(&bmpPaddingBytes[row], sizeof(byte), paddingBytes, bmpFileIn);
  	}
- 	
+  	
+ 	for (int i = 0; i < height * paddingBytes; i++) {
+ 		if (bmpPaddingBytes[i] != 0) {
+ 			ErrorExit(EXIT_FAILURE, "Padding bytes not 0.");
+ 		}
+ 	}
+
+ 	free(bmpPaddingBytes);
+  	
 	return pixels;
 }
 
@@ -163,25 +189,27 @@ void writeBmp(char *fileName, tPixel **pixelsToWrite) {
 	memcpy(&bufferHeader[8], &bmpHeader.reserved2, sizeof(bmpHeader.reserved2));
 	memcpy(&bufferHeader[10], &bmpHeader.pixelOffset, sizeof(bmpHeader.pixelOffset));
 
-	if(fwrite(bufferHeader, 14, 1, bmpFileOut) != 1) {
+	if(fwrite(bufferHeader, cBmpHeaderSize, 1, bmpFileOut) != 1) {
 		ErrorExit(EXIT_FAILURE, "Error writing file 1");
 	}
 
-	if(fwrite(&bmpInfoHeader, 40, 1, bmpFileOut) != 1) {
+	if(fwrite(&bmpInfoHeader, cBmpInfoHeaderSize, 1, bmpFileOut) != 1) {
 		ErrorExit(EXIT_FAILURE, "Error writing file 2");
 	}
 
 	for (int row = 0; row < height; row++) {
 		for (int col = 0; col < width; col++) {
 			
-			if(fwrite(&pixelsToWrite[row][col], 3, 1, bmpFileOut) != 1) {
+			if(fwrite(&pixelsToWrite[row][col], cSizeOfPixel, 1, bmpFileOut) != 1) {
 				ErrorExit(EXIT_FAILURE, "Error writing file 3");
 			}	
 		}
-		if(fwrite(&padding, 1, paddingBytes, bmpFileOut) != paddingBytes) {
+		if(fwrite(&padding, sizeof(byte), paddingBytes, bmpFileOut) != paddingBytes) {
 				ErrorExit(EXIT_FAILURE, "Error writing padding");
 		}
  	}
+
+ 	freePixels(pixelsToWrite);
 
  	fclose(bmpFileOut);
  	

@@ -1,15 +1,11 @@
 #ifndef BMP_H
 #define BMP_H
+
 #include <stdbool.h>  // For bool data type
 #include <stdio.h>    // For printf()
 #include <stdlib.h>   // For exit(), strtod()
 #include <stdint.h>
-#include "Main.h"
-#include "Arg.h"
-#include "Error.h"
-#include "String.h"
-// const size_t cBmpHeaderSize = 14;
-// const size_t cSizeofPixel = 3;
+
 //==============================================================================================================
 // TYPE DEFINITIONS
 //==============================================================================================================
@@ -43,7 +39,6 @@ typedef struct {
 
 tBmpHeader bmpHeader;
 tBmpInfoHeader bmpInfoHeader;
-tPixel **pixels;
 
 /***********************
 * Function Declerations
