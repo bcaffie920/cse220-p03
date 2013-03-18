@@ -126,7 +126,7 @@ static void Run(char **cmdArray){	//do I need a tPixels parameter? wh
 	for(int i = 0; i < 3; i++){
 		if(streq(cmdArray[i], "fliph")){
 			
-			flipBmpHoriz(pixels);	//need to find what parameters to pass!!
+			flipBmpHoriz(pixels);	//need to find what parameters to pass!! dont know if this is right
 
 		}else if(streq(cmdArray[i], "flipv")){
 			
@@ -135,6 +135,7 @@ static void Run(char **cmdArray){	//do I need a tPixels parameter? wh
 		}else{
 			
 			rotateBmp(pixels, cmdLine.rotArg);	//need to find what parameters to pass!!
+		
 		}
 	}
 }
