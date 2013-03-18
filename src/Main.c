@@ -119,6 +119,7 @@ int main(int pArgc, char *pArgv[])
  *
  * DESCRIPTION
  *------------------------------------------------------------------------------------------------------------*/
+
 static void Run(char **cmdArray){	//do I need a tPixels parameter? wh
 
 	tCmdLine cmdLine;
@@ -141,13 +142,13 @@ static void Run(char **cmdArray){	//do I need a tPixels parameter? wh
 }
 
 
-
 /*--------------------------------------------------------------------------------------------------------------
  * FUNCTION: ScanCmdLine()
  *
  * DESCRIPTION
  * Scan the command line extracting the options and arguments.
  *------------------------------------------------------------------------------------------------------------*/
+
 static void ScanCmdLine(tCmdLine *pCmdLine)
 {
 	tArgScan argScan;
@@ -239,6 +240,7 @@ static void ScanCmdLine(tCmdLine *pCmdLine)
 		ErrorExit(cErrorArgRot, "expecting input file");
 	}
 }
+
 
 /*--------------------------------------------------------------------------------------------------------------
  * FUNCTION: ScanRotArg()

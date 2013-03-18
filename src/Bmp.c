@@ -127,9 +127,9 @@ tPixel **readBmpPixels() {
 		for (int col = 0; col < width; col++) {
 			if(fread(&pixels[row][col], 3, 1, bmpFileIn) != 1) {
 				ErrorExit(EXIT_FAILURE, "Pixel Error.");
-			}
-			fseek(bmpFileIn, (long)paddingBytes, SEEK_CUR);			
+			}					
 		}
+		fseek(bmpFileIn, (long)paddingBytes, SEEK_CUR);
  	}
  	
 	return pixels;
@@ -173,13 +173,13 @@ void writeBmp(char *fileName, tPixel **pixelsToWrite) {
 
 	for (int row = 0; row < height; row++) {
 		for (int col = 0; col < width; col++) {
-			if(fwrite(&padding, 1, paddingBytes, bmpFileOut) != paddingBytes) {
-				ErrorExit(EXIT_FAILURE, "Error writing padding");
-			}	
+			
 			if(fwrite(&pixelsToWrite[row][col], 3, 1, bmpFileOut) != 1) {
 				ErrorExit(EXIT_FAILURE, "Error writing file 3");
-			}
-			
+			}	
+		}
+		if(fwrite(&padding, 1, paddingBytes, bmpFileOut) != paddingBytes) {
+				ErrorExit(EXIT_FAILURE, "Error writing padding");
 		}
  	}
 
