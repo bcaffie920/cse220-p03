@@ -18,6 +18,9 @@
 #include "Bmp.h"
 #include "Image.h"
 
+
+ 
+
 //==============================================================================================================
 // TYPEDEFS 
 //==============================================================================================================
@@ -48,7 +51,7 @@ const char *cVersion = "1.0 (2013.3.11)";
 
 static bool CheckDupOpt(bool pOptFlag, char *pOptStr);
 static void Help();
-static void Run(tCmdLine *);
+static void Run(char **cmdArray);	//parameters.....
 static void ScanCmdLine(tCmdLine *);
 static int ScanRotArg(char *pOpt, char *pArg);
 static void Version();
@@ -107,7 +110,7 @@ int main(int pArgc, char *pArgv[])
 	cmdLine.argc = pArgc;
 	cmdLine.argv = pArgv;
 	ScanCmdLine(&cmdLine);
-	Run(&cmdLine);
+	Run(&cmdLine);		//need to change what is passed here also...
 	return 0;
 }
 
@@ -116,19 +119,27 @@ int main(int pArgc, char *pArgv[])
  *
  * DESCRIPTION
  *------------------------------------------------------------------------------------------------------------*/
-static void Run(tCmdLine *pCmdLine)
-{	
-	tPixel **processedBmp;
+static void Run(char **cmdArray){	//do I need a tPixels parameter? wh
 
-	readBmpHeaders(pCmdLine->inFile);
-	processedBmp = readBmpPixels(pCmdLine);
-	if (pCmdLine->rotr) {
-		processedBmp = rotateBmp(processedBmp, pCmdLine->rotArg);	
+	tCmdLine cmdLine;
+
+	for(int i = 0; i < 3; i++){
+		if(streq(cmdArray[i], "fliph")){
+			
+			flipBmpHoriz(pixels);	//need to find what parameters to pass!!
+
+		}else if(streq(cmdArray[i], "flipv")){
+			
+			flipBmpVer(pixels);		//need to find what parameters to pass!!
+
+		}else{
+			
+			rotateBmp(pixels, cmdLine.rotArg);	//need to find what parameters to pass!!
+		}
 	}
-	// processedBmp = flipBmpHoriz(processedBmp);
-	// processedBmp = flipBmpHoriz(processedBmp);
-	writeBmp(pCmdLine->outFile, processedBmp);
 }
+
+
 
 /*--------------------------------------------------------------------------------------------------------------
  * FUNCTION: ScanCmdLine()
@@ -145,10 +156,14 @@ static void ScanCmdLine(tCmdLine *pCmdLine)
 	argScan.longOpts = "fliph;flipv;help;output:;rotr:;version;";
 	argScan.shortOpts = "ho:v";
 
+	// create a 2d array to store strings
+	char **cmdArray = (char **)malloc(5*sizeof(char *));
+
 	// Start scanning the command line at argv[1]. Note: argv[0] is always the name of the binary.
 	argScan.index = 1;
 	int result = ArgScan(&argScan);
-
+	int i = 0; //counter for cmdArray
+	
 	// Keep calling ArgargScan() to scan the next option until it returns cArgEnd indicating that the entire
 	// command line has been scanned.
 	while (result != cArgEnd) {
@@ -174,10 +189,16 @@ static void ScanCmdLine(tCmdLine *pCmdLine)
 		// We encountered a valid option. Was it --fliph?
 		} else if (streq(argScan.opt, "--fliph")) {
 			pCmdLine->fliph = CheckDupOpt(pCmdLine->fliph, argScan.opt);
+			if(pCmdLine->fliph){
+				cmdArray[i] = "fliph";
+			}
 
 		// Was it --flipv?
 		} else if (streq(argScan.opt, "--flipv")) {
 			pCmdLine->flipv = CheckDupOpt(pCmdLine->flipv, argScan.opt);
+			if(pCmdLine->fliph){
+				cmdArray[i] = "flipv";
+			}
 
 		// Was it -h or --help?
 		} else if (streq(argScan.opt, "-h") || streq(argScan.opt, "--help")) {
@@ -193,11 +214,17 @@ static void ScanCmdLine(tCmdLine *pCmdLine)
 		} else if (streq(argScan.opt, "--rotr")) {
 			pCmdLine->rotr = CheckDupOpt(pCmdLine->rotr, argScan.opt);
 			pCmdLine->rotArg = ScanRotArg(argScan.opt, argScan.arg);
+			if(pCmdLine->fliph){
+				cmdArray[i] = "rotr";
+			}
 
 		// Was it -v or --version?
 		} else if (streq(argScan.opt, "-v") || streq(argScan.opt, "--version")) {
 			pCmdLine->v = CheckDupOpt(pCmdLine->v, argScan.opt);
+
 		}
+
+		i++;
 
 		// Scan next option.
 		result = ArgScan(&argScan);
