@@ -122,11 +122,11 @@ static void Run(tCmdLine *pCmdLine)
 
 	readBmpHeaders(pCmdLine->inFile);
 	processedBmp = readBmpPixels(pCmdLine);
+	// processedBmp = flipBmpHoriz(processedBmp);
+	// processedBmp = flipBmpHoriz(processedBmp);
 	if (pCmdLine->rotr) {
 		processedBmp = rotateBmp(processedBmp, pCmdLine->rotArg);	
 	}
-	// processedBmp = flipBmpHoriz(processedBmp);
-	// processedBmp = flipBmpHoriz(processedBmp);
 	writeBmp(pCmdLine->outFile, processedBmp);
 }
 
